@@ -5,48 +5,25 @@ import CheckBox from "components/CheckBox";
 import IconButton from "@material-ui/core/IconButton";
 import FavoriteIcon from "@material-ui/icons/Favorite";
 import * as S from "./style";
+import FavoritesContext from '../../context/FavoritesContext'
+import { useUserList } from '../../hooks/useUserList'
+
 
 const UserList = ({ users, isLoading }) => {
-  const [hoveredUserId, setHoveredUserId] = useState();
-  const [filterCountries, setFilterCountries] = React.useState({
-    BR: {
-      isChecked: false,
-      name: 'Brazil'
-    },
-    AU: {
-      isChecked: false,
-      name: 'Australia'
-    },
-    CA: {
-      isChecked: false,
-      name: 'Canada'
-    },
-    DE: {
-      isChecked: false,
-      name: 'Germany'
-    },
-    CH: {
-      isChecked: false,
-      name: 'Switzerland'
-    }
-  })
+  const {
+    state: { favorites }
+  } = React.useContext(FavoritesContext)
+
+  const [filterCountries, onFilterChecked, updateFavorite] = useUserList()
+  const [hoveredUserId, setHoveredUserId] = useState()
 
 
   const handleMouseEnter = (index) => {
-    setHoveredUserId(index);
-  };
+    setHoveredUserId(index)
+  }
 
   const handleMouseLeave = () => {
-    setHoveredUserId();
-  };
-  // console.log(users)
-  // console.log(Object.keys(filterCountries))
-  // console.log(filterCountries)
-
-  const onFilterChecked = (country) => {
-    const replace = { ...filterCountries }
-    replace[country].isChecked = !replace[country].isChecked
-    setFilterCountries({ ...replace })
+    setHoveredUserId()
   }
 
   return (
@@ -64,7 +41,6 @@ const UserList = ({ users, isLoading }) => {
         {users.filter((user) => {
           const filterValues = Object.keys(filterCountries)
             .filter((country) => filterCountries[country].isChecked)
-          // console.log(filterValues)
           if (filterValues.length > 0) {
             return filterValues.includes(user.nat)
           }
@@ -73,7 +49,7 @@ const UserList = ({ users, isLoading }) => {
           .map((user, index) => {
             return (
               <S.User
-                key={index}
+                key={user.email.toString()}
                 onMouseEnter={() => handleMouseEnter(index)}
                 onMouseLeave={handleMouseLeave}
               >
@@ -90,8 +66,10 @@ const UserList = ({ users, isLoading }) => {
                     {user?.location.city} {user?.location.country}
                   </Text>
                 </S.UserInfo>
-                <S.IconButtonWrapper isVisible={index === hoveredUserId}>
-                  <IconButton>
+                <S.IconButtonWrapper isVisible={index === hoveredUserId || favorites.find((favorit) => favorit.email === user.email)}>
+                  <IconButton
+                    onClick={() => updateFavorite(user)}
+                  >
                     <FavoriteIcon color="error" />
                   </IconButton>
                 </S.IconButtonWrapper>

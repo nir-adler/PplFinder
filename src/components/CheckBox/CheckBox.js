@@ -9,7 +9,6 @@ const CheckBox = ({ isChecked, onChange, label, value }) => {
     onChange && onChange(value);
   };
 
-  console.log(isChecked)
   return (
     <S.CheckBox>
       <FormControlLabel
